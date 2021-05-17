@@ -1,3 +1,11 @@
+## This repository contains the followings implemented on a fork of the original SuperGlue algorithm.
+
+- Stitch images using ***SuperGlue features*** instead of mouse-clicked points. 
+- Compute the homography through RANSAC or MSAC. 
+- Stitch more than two images using mouse-clicked points. Handle the seams.
+
+---
+
 <img src="assets/magicleap.png" width="240">
 
 ### Research @ Magic Leap (CVPR 2020, Oral)
