@@ -9,7 +9,7 @@
 
 1. [SuperGlue Pretraine dNetwork](https://github.com/magicleap/SuperGluePretrainedNetwork)
 2. [Recognising Panoramas](http://matthewalunbrown.com/papers/iccv2003.pdf)
-3. Panorama Stitching algos on GitHub [1](https://github.com/tsherlock/panorama); [2](https://github.com/KithminiHerath/Panorama-Stitching/blob/master/Panorama_stitch.ipynb)
+3. Panorama Stitching algos on GitHub [[1]](https://github.com/tsherlock/panorama); [[2]](https://github.com/KithminiHerath/Panorama-Stitching/blob/master/Panorama_stitch.ipynb)
 
 ---
 
