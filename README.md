@@ -9,6 +9,7 @@
 
 1. [SuperGlue Pretraine dNetwork](https://github.com/magicleap/SuperGluePretrainedNetwork)
 2. [Recognising Panoramas](http://matthewalunbrown.com/papers/iccv2003.pdf)
+3. [Panorama on GitHub](https://github.com/tsherlock/panorama)
 
 ---
 
