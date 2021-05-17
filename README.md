@@ -4,6 +4,12 @@
 - Compute the homography through RANSAC or MSAC. 
 - Stitch more than two images using mouse-clicked points. Handle the seams.
 
+
+## Resources
+
+1. [SuperGlue Pretraine dNetwork](https://github.com/magicleap/SuperGluePretrainedNetwork)
+2. [Recognising Panoramas](http://matthewalunbrown.com/papers/iccv2003.pdf)
+
 ---
 
 <img src="assets/magicleap.png" width="240">
