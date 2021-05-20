@@ -1,14 +1,17 @@
 ## This repository contains the followings implemented on a fork of the original SuperGlue algorithm.
 
+***Done***
 - Stitch images using ***SuperGlue features*** instead of mouse-clicked points. 
 - Compute the homography through RANSAC or MSAC. 
+
+***To be Done***
 - Stitch more than two images using mouse-clicked points. Handle the seams.
 
 
 ## Resources
 
 1. [SuperGlue Pretraine dNetwork](https://github.com/magicleap/SuperGluePretrainedNetwork)
-2. [Recognising Panoramas](http://matthewalunbrown.com/papers/iccv2003.pdf)
+2. [Recognising Panoramas](http://matthewalunbrown.com/papers/iccv2003.pdf); [PRec](https://github.com/elrinor/prec); [VFX2017](https://github.com/Daikon-Sun/VFX2017/tree/master/hw2)
 3. Panorama Stitching algos on GitHub [[1]](https://github.com/tsherlock/panorama); [[2]](https://github.com/KithminiHerath/Panorama-Stitching/blob/master/Panorama_stitch.ipynb)
 
 ---
