@@ -17,6 +17,11 @@
 3. Panorama Stitching algos on GitHub [[1]](https://github.com/tsherlock/panorama); [[2]](https://github.com/KithminiHerath/Panorama-Stitching/blob/master/Panorama_stitch.ipynb)
 4. [Introduction To Feature Detection And Matching](https://medium.com/data-breach/introduction-to-feature-detection-and-matching-65e27179885d)
 
+|Source Images|Stitched Images|
+|:---:|:---:|
+|<img src="#illustrations/sources.PNG"  width="450" />|<img src="illustrations/stitched.PNG"  width="450" />|
+
+
 ---
 
 <img src="assets/magicleap.png" width="240">
