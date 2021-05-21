@@ -19,7 +19,7 @@
 
 |Source Images|Stitched Images|
 |:---:|:---:|
-|<img src="#illustrations/sources.PNG"  width="450" />|<img src="illustrations/stitched.PNG"  width="450" />|
+|<img src="illustrations/sources.PNG"  height="500" />|<img src="illustrations/stitched.PNG"  height="500" />|
 
 
 ---
