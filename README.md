@@ -17,6 +17,27 @@
 3. Panorama Stitching algos on GitHub [[1]](https://github.com/tsherlock/panorama); [[2]](https://github.com/KithminiHerath/Panorama-Stitching/blob/master/Panorama_stitch.ipynb)
 4. [Introduction To Feature Detection And Matching](https://medium.com/data-breach/introduction-to-feature-detection-and-matching-65e27179885d)
 
+## *Notice*
+
+***Do not resize the images, If you need to use the extracted keypoints,to process the "original" source images. Set the parameter to -1 to avoid resizing `--resize -1`. Other parameter can be set as follows, to extract the best matching features.***
+* Non maximum Suppression Radius(nms_radius) = 5
+* Matching Confidence(match_threshold) = 0.9
+
+```python
+# parameters related to the below figures are as follows
+!python match_pairs.py  --resize -1\
+                        --superglue outdoor \
+                        --max_keypoints 2048 \
+                        --nms_radius 5 \
+                        --resize_float \
+                        --input_dir adobe_panorama/ \
+                        --input_pairs adobe_panorama.txt \
+                        --output_dir adobe_panorama/output \
+                        --viz \
+                        --keypoint_threshold 0.05 \
+                        --match_threshold 0.9
+```
+
 |Source Images|Stitched Images|
 |:---:|:---:|
 |<img src="illustrations/sources.PNG"  height="500" />|<img src="illustrations/stitched.PNG"  height="500" />|
