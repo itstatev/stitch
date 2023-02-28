@@ -127,7 +127,7 @@ def match_pairs(pair, input_dir='/home/tatev/Documents/change_detection/CD_via_s
         if not all([len(p) == 38 for p in pairs]):
             raise ValueError(
                 'All pairs should have ground truth info for evaluation.'
-                'File \"{}\" needs 38 valid entries per row'.format(input_pairs))
+                'File \"{}\" needs 38 valid entries per row'.format(pair))
 
     # Load the SuperPoint and SuperGlue models.
     device = 'cuda' if torch.cuda.is_available() and not force_cpu else 'cpu'
