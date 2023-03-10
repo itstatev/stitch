@@ -78,14 +78,6 @@ def match_pairs(pair, input_dir='/home/tatev/Documents/change_detection/CD_via_s
     keypoints1 = []
     matchess = []
 
-    # name0, name1 = pair[0], pair[1]
-    # stem0, stem1 = Path(name0).stem, Path(name1).stem
-    # matches_path = output_dir / '{}_{}_matches.npz'.format(stem0, stem1)
-    # eval_path = output_dir / '{}_{}_evaluation.npz'.format(stem0, stem1)
-    # viz_path = output_dir / '{}_{}_matches.{}'.format(stem0, stem1, viz_extension)
-    # viz_eval_path = output_dir / \
-    #     '{}_{}_evaluation.{}'.format(stem0, stem1, viz_extension)
-
     # Handle --cache logic.
     do_match = True
     do_eval = eval
