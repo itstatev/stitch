@@ -4,7 +4,8 @@ import random
 import numpy as np
 import matplotlib.cm as cm
 import torch
-
+import matplotlib.pyplot as plt
+import cv2
 
 from .models.matching import Matching
 from .models.utils import (compute_pose_error, compute_epipolar_error,
@@ -15,8 +16,10 @@ from .models.utils import (compute_pose_error, compute_epipolar_error,
 
 
 # default input path: ='/home/tatev/Documents/change_detection/CD_via_segmentation/modules/stitch/pairs.txt'
-def match_pairs(pair, input_dir='/home/tatev/Documents/change_detection/CD_via_segmentation/modules/stitch/input/', output_dir='/home/tatev/Documents/change_detection/CD_via_segmentation/modules/stitch/matched_pairs/', max_length=-1, resize=[360, 240], resize_float=False, superglue='outdoor', max_keypoints=1024, keypoint_threshold=0.000005, nms_radius=4, sinkhorn_iterations=20, match_threshold=0.00009, viz=False, eval=False, fast_viz=False, cache=False, show_keypoints=False, viz_extension=False, opencv_display=False, shuffle=False, force_cpu=False):
-    print('the pair', pair)
+def match_pairs(pair, pairs='', resize=[360, 240], superglue='outdoor', max_keypoints=1024, keypoint_threshold=0.005, nms_radius=4, sinkhorn_iterations=20, match_threshold=0.00009, viz=False, eval=False, fast_viz=False, viz_extension=False, opencv_display=False, force_cpu=False):
+    # print('the pair', pair)
+    # cv2.imshow('img', pair[0])
+    # cv2.waitKey(0)
     torch.set_grad_enabled(False)
     assert not (opencv_display and not viz), 'Must use --viz with --opencv_display'
     assert not (opencv_display and not fast_viz), 'Cannot use --opencv_display without --fast_viz'
@@ -40,13 +43,6 @@ def match_pairs(pair, input_dir='/home/tatev/Documents/change_detection/CD_via_s
     print(pair[0].shape)
     # with open(input_pairs, 'r') as f:
     #     pairs = [l.split() for l in f.readlines()]
-
-    if max_length > -1:
-        pairs = pairs[0:np.min([len(pairs), max_length])]
-
-    if shuffle:
-        random.Random(0).shuffle(pairs)
-
     if eval:
         if not all([len(p) == 38 for p in pairs]):
             raise ValueError(
@@ -86,20 +82,29 @@ def match_pairs(pair, input_dir='/home/tatev/Documents/change_detection/CD_via_s
 
 
     # Load the image pair.
-    image0 = pair[0]
-    image1 = pair[1]
-    print(image0.shape)
-    image0 = np.array(image0)
-    image1 = np.array(image1)
+    # image0 = pair[0]
+    # image1 = pair[1]
+    # print(image0.shape)
+    # image0 = np.array(image0)
+    # image1 = np.array(image1)
 
-    image0 = np.reshape(image0, (image0.shape[2], 1, image0.shape[0], image0.shape[1]))
-    image1 = np.reshape(image1, (image1.shape[2], 1, image1.shape[0], image1.shape[1]))
-    print('reshaped', image0.shape)
-    inp0 = torch.from_numpy(image0).float()
-    inp1 = torch.from_numpy(image1).float()
+    # image0 = np.reshape(image0, (image0.shape[2], 1, image0.shape[0], image0.shape[1]))
+    # image1 = np.reshape(image1, (image1.shape[2], 1, image1.shape[0], image1.shape[1]))
+    # print('reshaped', image0.shape)
+    # inp0 = torch.from_numpy(image0).float()
+    # inp1 = torch.from_numpy(image1).float()
 
+    image0, inp0, scale0 = read_image(pair[0], device, resize, 0, True)
+    image1, inp1, scale1 = read_image(pair[1], device, resize, 0, True)
+    # print('mta')
+    # print(inp0[0], inp0[0].shape)
+    inp0 = torch.moveaxis(inp0[0], 3, 1)
+    inp0 = torch.moveaxis(inp0, 0, 1)
+    inp1 = torch.moveaxis(inp1[0], 3, 1)
+    inp1 = torch.moveaxis(inp1, 0, 1)
+    # print(inp0.shape)
+    # input()
     timer.update('load_image')
-
     if do_match:
         # Perform the matching.
         pred = matching({'image0': inp0, 'image1': inp1})
