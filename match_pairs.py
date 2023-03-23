@@ -16,7 +16,7 @@ from .models.utils import (compute_pose_error, compute_epipolar_error,
 
 
 # default input path: ='/home/tatev/Documents/change_detection/CD_via_segmentation/modules/stitch/pairs.txt'
-def match_pairs(pair, pairs='', resize=[360, 240], superglue='outdoor', max_keypoints=1024, keypoint_threshold=0.005, nms_radius=4, sinkhorn_iterations=20, match_threshold=0.00009, viz=False, eval=False, fast_viz=False, viz_extension=False, opencv_display=False, force_cpu=False):
+def match_pairs(pair, pairs='', resize=[360, 240], superglue='outdoor', max_keypoints=512, keypoint_threshold=0.00001, nms_radius=4, sinkhorn_iterations=20, match_threshold=0.000009, viz=False, eval=False, fast_viz=False, viz_extension=False, opencv_display=False, force_cpu=False):
     # print('the pair', pair)
     # cv2.imshow('img', pair[0])
     # cv2.waitKey(0)
@@ -26,7 +26,7 @@ def match_pairs(pair, pairs='', resize=[360, 240], superglue='outdoor', max_keyp
     assert not (fast_viz and not viz), 'Must use --viz with --fast_viz'
     assert not (fast_viz and viz_extension == 'pdf'), 'Cannot use pdf extension with --fast_viz'
 
-    print(pair[0].shape)
+    print(keypoint_threshold)
 
     if len(resize) == 2 and resize[1] == -1:
         resize = resize[0:1]
@@ -102,8 +102,7 @@ def match_pairs(pair, pairs='', resize=[360, 240], superglue='outdoor', max_keyp
     inp0 = torch.moveaxis(inp0, 0, 1)
     inp1 = torch.moveaxis(inp1[0], 3, 1)
     inp1 = torch.moveaxis(inp1, 0, 1)
-    # print(inp0.shape)
-    # input()
+
     timer.update('load_image')
     if do_match:
         # Perform the matching.
