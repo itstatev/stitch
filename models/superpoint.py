@@ -104,7 +104,7 @@ class SuperPoint(nn.Module):
     default_config = {
         'descriptor_dim': 256,
         'nms_radius': 4,
-        'keypoint_threshold': 0.005,
+        'keypoint_threshold': 0.000000000000001,
         'max_keypoints': -1,
         'remove_borders': 4,
     }
@@ -112,7 +112,7 @@ class SuperPoint(nn.Module):
     def __init__(self, config):
         super().__init__()
         self.config = {**self.default_config, **config}
-
+        print(self.config)
         self.relu = nn.ReLU(inplace=True)
         self.pool = nn.MaxPool2d(kernel_size=2, stride=2)
         c1, c2, c3, c4, c5 = 64, 64, 128, 128, 256
@@ -169,7 +169,7 @@ class SuperPoint(nn.Module):
         # input()
         # Extract keypoints
         keypoints = [
-            torch.nonzero(s > self.config['keypoint_threshold']*1e-20)
+            torch.nonzero(s > self.config['keypoint_threshold'])
             for s in scores]
         scores = [s[tuple(k.t())] for s, k in zip(scores, keypoints)]
 
@@ -195,7 +195,6 @@ class SuperPoint(nn.Module):
         # Extract descriptors
         descriptors = [sample_descriptors(k[None], d[None], 8)[0]
                        for k, d in zip(keypoints, descriptors)]
-
         return {
             'keypoints': keypoints,
             'scores': scores,
