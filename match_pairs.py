@@ -16,7 +16,7 @@ from .models.utils import (compute_pose_error, compute_epipolar_error,
 
 
 # default input path: ='/home/tatev/Documents/change_detection/CD_via_segmentation/modules/stitch/pairs.txt'
-def match_pairs(pair, pairs='', resize=[360, 240], superglue='outdoor', max_keypoints=512, keypoint_threshold=0.00001, nms_radius=4, sinkhorn_iterations=20, match_threshold=0.000009, viz=False, eval=False, fast_viz=False, viz_extension=False, opencv_display=False, force_cpu=False):
+def match_pairs(pair, layers_of_first_img, layers_of_second_img, pairs='', resize=[360, 240], superglue='outdoor', max_keypoints=512, keypoint_threshold=0.00001, nms_radius=4, sinkhorn_iterations=20, match_threshold=0.000009, viz=False, eval=False, fast_viz=False, viz_extension=False, opencv_display=False, force_cpu=False):
     # print('the pair', pair)
     # cv2.imshow('img', pair[0])
     # cv2.waitKey(0)
@@ -66,7 +66,6 @@ def match_pairs(pair, pairs='', resize=[360, 240], superglue='outdoor', max_keyp
     }
     
     matching = Matching(config).eval().to(device)
-    print('after matching', pair[0].shape)
 
     timer = AverageTimer(newline=True)
 
@@ -96,8 +95,7 @@ def match_pairs(pair, pairs='', resize=[360, 240], superglue='outdoor', max_keyp
 
     image0, inp0, scale0 = read_image(pair[0], device, resize, 0, True)
     image1, inp1, scale1 = read_image(pair[1], device, resize, 0, True)
-    # print('mta')
-    # print(inp0[0], inp0[0].shape)
+
     inp0 = torch.moveaxis(inp0[0], 3, 1)
     inp0 = torch.moveaxis(inp0, 0, 1)
     inp1 = torch.moveaxis(inp1[0], 3, 1)
@@ -106,7 +104,7 @@ def match_pairs(pair, pairs='', resize=[360, 240], superglue='outdoor', max_keyp
     timer.update('load_image')
     if do_match:
         # Perform the matching.
-        pred = matching({'image0': inp0, 'image1': inp1})
+        pred = matching({'image0': inp0, 'image1': inp1}, layers_of_first_img, layers_of_second_img)
         pred = {k: v[0].cpu().numpy() for k, v in pred.items()}
         kpts0, kpts1 = pred['keypoints0'], pred['keypoints1']
         matches, conf = pred['matches0'], pred['matching_scores0']
