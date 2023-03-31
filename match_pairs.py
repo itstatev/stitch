@@ -16,7 +16,7 @@ from .models.utils import (compute_pose_error, compute_epipolar_error,
 
 
 # default input path: ='/home/tatev/Documents/change_detection/CD_via_segmentation/modules/stitch/pairs.txt'
-def match_pairs(pair, layers_of_first_img, layers_of_second_img, pairs='', resize=[360, 240], superglue='outdoor', max_keypoints=512, keypoint_threshold=0.00001, nms_radius=4, sinkhorn_iterations=20, match_threshold=0.000009, viz=False, eval=False, fast_viz=False, viz_extension=False, opencv_display=False, force_cpu=False):
+def match_pairs(pair, layers_of_first_img, layers_of_second_img, pairs='', resize=[360, 240], superglue='outdoor', max_keypoints=1024, keypoint_threshold=0.000000001, nms_radius=4, sinkhorn_iterations=20, match_threshold=0.00000009, viz=False, eval=False, fast_viz=False, viz_extension=False, opencv_display=False, force_cpu=False):
     # print('the pair', pair)
     # cv2.imshow('img', pair[0])
     # cv2.waitKey(0)

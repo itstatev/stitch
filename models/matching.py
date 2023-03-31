@@ -61,12 +61,12 @@ class Matching(torch.nn.Module):
           data: dictionary with minimal keys: ['image0', 'image1']
         """
         pred = {}
-        pred['keypoints0'] = torch.empty((len(layers_of_first_img), 1), device='cuda')
-        pred['scores0'] = torch.empty((1, len(layers_of_first_img)), device='cuda')
-        pred['descriptors0'] = torch.empty((len(layers_of_first_img), 1), device='cuda')
-        pred['keypoints1'] = torch.empty((len(layers_of_second_img), 1), device='cuda')
-        pred['scores1'] = torch.empty((1, len(layers_of_second_img)), device='cuda')
-        pred['descriptors1'] = torch.empty((len(layers_of_second_img), 1), device='cuda')
+        pred['keypoints0'] = torch.empty((len(layers_of_first_img), 1024, 2), device='cuda')
+        pred['scores0'] = torch.empty((len(layers_of_first_img), 1024), device='cuda')
+        pred['descriptors0'] = torch.empty((len(layers_of_first_img), 256, 1024), device='cuda')
+        pred['keypoints1'] = torch.empty((len(layers_of_second_img), 2), device='cuda')
+        pred['scores1'] = torch.empty((len(layers_of_second_img), 1024), device='cuda')
+        pred['descriptors1'] = torch.empty((len(layers_of_second_img), 256, 1024), device='cuda')
 
         for a_layer in layers_of_first_img:
             a_layer = np.array(a_layer, np.uint8)
@@ -104,6 +104,8 @@ class Matching(torch.nn.Module):
             # print('pred0', pred0['descriptors'][0])
 
             for tensor in pred0['keypoints']:
+                print('tensor shape', tensor)
+                input()
                 for keypoint in tensor:
                     keypoint[0] = keypoint[0] + x_min_x
                     keypoint[1] = keypoint[1] + y_max_y
