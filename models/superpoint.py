@@ -105,7 +105,7 @@ class SuperPoint(nn.Module):
         'descriptor_dim': 256,
         'nms_radius': 4,
         'keypoint_threshold': 0.000000000000001,
-        'max_keypoints': -1,
+        'max_keypoints': 1024,
         'remove_borders': 4,
     }
 

@@ -61,12 +61,12 @@ class Matching(torch.nn.Module):
           data: dictionary with minimal keys: ['image0', 'image1']
         """
         pred = {}
-        pred['keypoints0'] = torch.empty((len(layers_of_first_img), 1024, 2), device='cuda')
-        pred['scores0'] = torch.empty((len(layers_of_first_img), 1024), device='cuda')
-        pred['descriptors0'] = torch.empty((len(layers_of_first_img), 256, 1024), device='cuda')
-        pred['keypoints1'] = torch.empty((len(layers_of_second_img), 2), device='cuda')
-        pred['scores1'] = torch.empty((len(layers_of_second_img), 1024), device='cuda')
-        pred['descriptors1'] = torch.empty((len(layers_of_second_img), 256, 1024), device='cuda')
+        pred['keypoints0'] = []
+        pred['scores0'] = []
+        pred['descriptors0'] = []
+        pred['keypoints1'] = []
+        pred['scores1'] = []
+        pred['descriptors1'] =  []
 
         for a_layer in layers_of_first_img:
             a_layer = np.array(a_layer, np.uint8)
@@ -104,32 +104,27 @@ class Matching(torch.nn.Module):
             # print('pred0', pred0['descriptors'][0])
 
             for tensor in pred0['keypoints']:
-                print('tensor shape', tensor)
-                input()
+                # pred['keypoints0'] =  pred['keypoints0'].reshape(len(layers_of_first_img), tensor.shape[0], 2)
+                # print('tensor shape', tensor)
+                # input()
                 for keypoint in tensor:
                     keypoint[0] = keypoint[0] + x_min_x
                     keypoint[1] = keypoint[1] + y_max_y
-                pred['keypoints0'] = torch.cat((pred['keypoints0'], tensor), dim=0)
+                    pred['keypoints0'].append(keypoint)
             
-            print('keyp', pred['keypoints0'])
-            input()
+            # print('keyp', pred['keypoints0'])
+            # input()
 
             for el in pred0['scores']:
                 for sc in el:
                     pred['scores0'].append(sc)
 
             for descr in pred0['descriptors']:
-                if descr.shape != torch.Size([1, 2]):
-                    if descr.shape != torch.Size([256, 1]):
-                        descr = torch.split(descr, 1, dim=1)
-                        for i, tens in enumerate(descr):
-                            if tensor.shape != torch.Size([256, 0]):
-                                pred['descriptors0'].append(tens)
-                    else:
-                        pred['descriptors0'].append(tens) 
+                if descr.shape != torch.Size([256, 1]) and descr.shape != torch.Size([256, 0]):
+                    pred['descriptors0'].append(descr) 
 
         # print('descriptors0', pred['descriptors0'])
-        input()
+        # input()
 
         for b_layer in layers_of_second_img:
             b_layer = np.array(b_layer, np.uint8)
@@ -175,7 +170,8 @@ class Matching(torch.nn.Module):
                 if descr.shape != torch.Size([256, 1]) and descr.shape != torch.Size([256, 0]):
                     pred['descriptors1'].append(descr) 
 
-            # print('keyp', torch.tensor(pred['keypoints1']))
+
+            
             # input()
                     # descr = torch.split(descr, 1, dim=1)
                 #     for i, tens in enumerate(descr):
@@ -193,12 +189,18 @@ class Matching(torch.nn.Module):
         # Batch all features
         # We should either have i) one image per batch, or
         # ii) the same number of local features for all images in the batch.
+
         data = {**data, **pred}
-        # print('data', data.keys())
+        # print(data)
+        # input()
         for k in data:
             if isinstance(data[k], (list, tuple)):
-                data[k] = torch.stack(data[k], dim=0)
-                 
+                # print(k)
+                print(data[k], data[k][0].shape)
+                input(k)
+                # data[k] = torch.tensor(data[k]) if 'scores' in k else torch.stack(data[k], dim=0)
+                data[k] = torch.FloatTensor(data[k])
+        print('data', data, 'descr shape', data['descriptors1'].shape)
         # data['scores0'] = torch.unsqueeze(data['scores0'], dim=1)
         # data['scores0'] = torch.unsqueeze(data['scores0'], dim=1)
         # data['scores0'] = torch.unsqueeze(data['scores0'], dim=1)
@@ -212,7 +214,7 @@ class Matching(torch.nn.Module):
         # data['descriptors0'] = torch.unsqueeze(data['descriptors0'], dim=1)
         # data['descriptors1'] = torch.unsqueeze(data['descriptors1'], dim=1)
         
-        print('data', data['scores0'].shape, data['keypoints0'].shape, data['descriptors0'].shape, data['image0'].shape)
+        # print('data', data['scores0'].shape, data['keypoints0'].shape, data['descriptors0'].shape, data['image0'].shape)
 
         # Perform the matching
         pred = {**pred, **self.superglue(data)}
