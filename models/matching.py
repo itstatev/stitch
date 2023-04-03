@@ -104,26 +104,33 @@ class Matching(torch.nn.Module):
             # print('pred0', pred0['descriptors'][0])
 
             for tensor in pred0['keypoints']:
-                # pred['keypoints0'] =  pred['keypoints0'].reshape(len(layers_of_first_img), tensor.shape[0], 2)
-                # print('tensor shape', tensor)
-                # input()
                 for keypoint in tensor:
+                    keypoint = keypoint.tolist()
                     keypoint[0] = keypoint[0] + x_min_x
                     keypoint[1] = keypoint[1] + y_max_y
                     pred['keypoints0'].append(keypoint)
-            
-            # print('keyp', pred['keypoints0'])
-            # input()
 
             for el in pred0['scores']:
-                for sc in el:
-                    pred['scores0'].append(sc)
+                el = el.tolist()
+                pred['scores0'].extend(el)
 
             for descr in pred0['descriptors']:
                 if descr.shape != torch.Size([256, 1]) and descr.shape != torch.Size([256, 0]):
-                    pred['descriptors0'].append(descr) 
+                    new_descr = descr.T.tolist()
+                    # print(np.array(new_descr).shape)
+                    pred['descriptors0'].extend(new_descr) 
+        #     input()
 
-        # print('descriptors0', pred['descriptors0'])
+        # print('descriptors0', len(pred['descriptors0']), len(pred['descriptors0'][0]), len(pred['descriptors0'][0][0]) )
+        # input()
+
+        pred['keypoints0'] = torch.FloatTensor(pred['keypoints0']).cuda()
+        pred['scores0'] = torch.FloatTensor(pred['scores0']).cuda()
+        pred['descriptors0'] = torch.FloatTensor(pred['descriptors0']).T.cuda()
+    
+        print('keyp', pred['keypoints0'])
+        print('scores', pred['scores0'])
+        print('descriptors', pred['descriptors0'])
         # input()
 
         for b_layer in layers_of_second_img:
@@ -158,33 +165,35 @@ class Matching(torch.nn.Module):
             
             for tensor in pred1['keypoints']:
                 for keypoint in tensor:
+                    keypoint = keypoint.tolist()
                     keypoint[0] = keypoint[0] + x_min_x
                     keypoint[1] = keypoint[1] + y_max_y
                     pred['keypoints1'].append(keypoint)
-            
-            for el in pred1['scores']:
-                for sc in el:
-                    pred['scores1'].append(sc)
 
+            for el in pred1['scores']:
+                el = el.tolist()
+                pred['scores1'].extend(el)
+
+            # print(pred['descriptors1'])
+            # input()
             for descr in pred1['descriptors']:
                 if descr.shape != torch.Size([256, 1]) and descr.shape != torch.Size([256, 0]):
-                    pred['descriptors1'].append(descr) 
+                    new_descr = descr.T.tolist()
+                    # print(np.array(new_descr).shape)
+                    pred['descriptors1'].extend(new_descr)
+        # print(len(pred['descriptors1']))
+        # input()
+        pred['keypoints1'] = torch.FloatTensor(pred['keypoints1']).cuda()
+        pred['scores1'] = torch.FloatTensor(pred['scores1']).cuda()
+        pred['descriptors1'] = torch.FloatTensor(pred['descriptors1']).T.cuda()
 
-
-            
-            # input()
-                    # descr = torch.split(descr, 1, dim=1)
-                #     for i, tens in enumerate(descr):
-                #         if tens.shape != torch.Size([256, 0]):
-                #             pred['descriptors1'].append(tens)
-                # else:
-                #     pred['descriptors1'].append(tens) 
-                
-
-        print('pred keypoints1', len(pred['keypoints1']))
-        print('pred scores1', len(pred['scores1']))
-        print('pred descriptors1', len(pred['descriptors1']))
-
+        print('pred keypoints0', pred['keypoints0'].shape)
+        print('pred scores0', pred['scores0'].shape)
+        print('pred descriptors0', pred['descriptors0'].shape)
+        print('pred keypoints1', pred['keypoints1'].shape)
+        print('pred scores1', pred['scores1'].shape)
+        print('pred descriptors1', pred['descriptors1'].shape)
+        input()
 
         # Batch all features
         # We should either have i) one image per batch, or
@@ -195,26 +204,9 @@ class Matching(torch.nn.Module):
         # input()
         for k in data:
             if isinstance(data[k], (list, tuple)):
-                # print(k)
-                print(data[k], data[k][0].shape)
-                input(k)
-                # data[k] = torch.tensor(data[k]) if 'scores' in k else torch.stack(data[k], dim=0)
-                data[k] = torch.FloatTensor(data[k])
-        print('data', data, 'descr shape', data['descriptors1'].shape)
-        # data['scores0'] = torch.unsqueeze(data['scores0'], dim=1)
-        # data['scores0'] = torch.unsqueeze(data['scores0'], dim=1)
-        # data['scores0'] = torch.unsqueeze(data['scores0'], dim=1)
-        # data['scores1'] = torch.unsqueeze(data['scores1'], dim=1)
-        # data['scores1'] = torch.unsqueeze(data['scores1'], dim=1)
-        # data['scores1'] = torch.unsqueeze(data['scores1'], dim=1)
-        # data['keypoints0'] = torch.unsqueeze(data['keypoints0'], dim=1)
-        # data['keypoints1'] = torch.unsqueeze(data['keypoints1'], dim=1)
-        # data['keypoints1'] = torch.unsqueeze(data['keypoints1'], dim=1)
-        # data['keypoints1'] = torch.unsqueeze(data['keypoints1'], dim=1)
-        # data['descriptors0'] = torch.unsqueeze(data['descriptors0'], dim=1)
-        # data['descriptors1'] = torch.unsqueeze(data['descriptors1'], dim=1)
+                data[k] = torch.tensor(data[k]) if 'scores' in k else torch.stack(data[k], dim=0)
+                # data[k] = torch.FloatTensor(data[k])
         
-        # print('data', data['scores0'].shape, data['keypoints0'].shape, data['descriptors0'].shape, data['image0'].shape)
 
         # Perform the matching
         pred = {**pred, **self.superglue(data)}

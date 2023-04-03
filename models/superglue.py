@@ -79,6 +79,8 @@ class KeypointEncoder(nn.Module):
 
     def forward(self, kpts, scores):
         inputs = [kpts.transpose(1, 2), scores.unsqueeze(1)]
+        print('shape', kpts.transpose(1,2).shape, scores.unsqueeze(1).shape)
+        input()
         return self.encoder(torch.cat(inputs, dim=1))
 
 
@@ -244,6 +246,8 @@ class SuperGlue(nn.Module):
         kpts1 = normalize_keypoints(kpts1, data['image1'].shape)
 
         # Keypoint MLP encoder.
+        # print(kpts0)
+        # input()
         desc0 = desc0 + self.kenc(kpts0, data['scores0'])
         desc1 = desc1 + self.kenc(kpts1, data['scores1'])
 
