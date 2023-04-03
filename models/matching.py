@@ -193,7 +193,7 @@ class Matching(torch.nn.Module):
         print('pred keypoints1', pred['keypoints1'].shape)
         print('pred scores1', pred['scores1'].shape)
         print('pred descriptors1', pred['descriptors1'].shape)
-        input()
+        # input()
 
         # Batch all features
         # We should either have i) one image per batch, or
@@ -210,5 +210,4 @@ class Matching(torch.nn.Module):
 
         # Perform the matching
         pred = {**pred, **self.superglue(data)}
-
         return pred 
