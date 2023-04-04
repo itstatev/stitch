@@ -105,11 +105,9 @@ def match_pairs(pair, layers_of_first_img, layers_of_second_img, pairs='', resiz
     if do_match:
         # Perform the matching.
         pred = matching({'image0': inp0, 'image1': inp1}, layers_of_first_img, layers_of_second_img)
-        # pred = {k: v[0].cpu().numpy() for k, v in pred.items()}
-        for k, v in pred.items():
-            v = v.cpu().numpy()
-        print('pred', pred)
-        input()
+        pred = {k: v.cpu().numpy() for k, v in pred.items()}
+        # print('pred', pred)
+        # input()
         kpts0, kpts1 = pred['keypoints0'], pred['keypoints1']
         matches, conf = pred['matches0'], pred['matching_scores0']
         keypoints0.append(kpts0)

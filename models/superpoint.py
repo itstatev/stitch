@@ -166,7 +166,7 @@ class SuperPoint(nn.Module):
         scores = scores.permute(0, 2, 3, 1).reshape(b, h, w, 8, 8)
         scores = scores.permute(0, 1, 3, 2, 4).reshape(b, h*8, w*8)
         scores = simple_nms(scores, self.config['nms_radius'])
-        # input()
+
         # Extract keypoints
         keypoints = [
             torch.nonzero(s > self.config['keypoint_threshold'])

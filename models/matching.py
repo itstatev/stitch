@@ -76,32 +76,21 @@ class Matching(torch.nn.Module):
             sort = np.argsort(y)
             y_min_x, y_min_y = x[sort[0]], y[sort[0]]
             y_max_x, y_max_y = x[sort[-1]], y[sort[-1]]
-            # print("Min (x, y): ({}, {})".format(y_min_x, y_min_y))
-            # print("Max (x, y): ({}, {})".format(y_max_x, y_max_y))
 
             # print('Along x-axis')
             sort = np.argsort(x)
             x_min_x, x_min_y = x[sort[0]], y[sort[0]]
             x_max_x, x_max_y = x[sort[-1]], y[sort[-1]]
-            # print("Min (x, y): ({}, {})".format(x_min_x, x_min_y))
-            # print("Max (x, y): ({}, {})".format(x_max_x, x_max_y))
 
             min_width = (max([x_min_x - 10, 0]), x_min_y)
             max_width = (min([x_max_x  + 10, 240]), x_max_y)
             min_height = (min([y_min_x + 10, 360]), y_min_y)
             max_height = (max([y_max_x - 10, 0]), y_max_y)
 
-            # print('min width', min_width)
-            # print('max width', max_width)
-            # print('min height', min_height)
-            # print('max height', max_height)
             cropped = data['image0'].permute(0, 3, 2, 1).squeeze()[:, min_height[1]:max_height[1], min_width[0]:max_width[0]]
             cropped = cropped.clone().unsqueeze(1).permute(0, 1, 3, 2)
-            print('Cropped shape: ', cropped.shape)
 
-            # if 'keypoints0' not in data:
             pred0 = self.superpoint({'image': cropped})
-            # print('pred0', pred0['descriptors'][0])
 
             for tensor in pred0['keypoints']:
                 for keypoint in tensor:
@@ -117,21 +106,12 @@ class Matching(torch.nn.Module):
             for descr in pred0['descriptors']:
                 if descr.shape != torch.Size([256, 1]) and descr.shape != torch.Size([256, 0]):
                     new_descr = descr.T.tolist()
-                    # print(np.array(new_descr).shape)
                     pred['descriptors0'].extend(new_descr) 
-        #     input()
 
-        # print('descriptors0', len(pred['descriptors0']), len(pred['descriptors0'][0]), len(pred['descriptors0'][0][0]) )
-        # input()
 
         pred['keypoints0'] = torch.FloatTensor(pred['keypoints0']).cuda()
         pred['scores0'] = torch.FloatTensor(pred['scores0']).cuda()
         pred['descriptors0'] = torch.FloatTensor(pred['descriptors0']).T.cuda()
-    
-        print('keyp', pred['keypoints0'])
-        print('scores', pred['scores0'])
-        print('descriptors', pred['descriptors0'])
-        # input()
 
         for b_layer in layers_of_second_img:
             b_layer = np.array(b_layer, np.uint8)
@@ -154,12 +134,10 @@ class Matching(torch.nn.Module):
 
             cropped = data['image1'].permute(0, 3, 2, 1).squeeze()[:, min_height[1]:max_height[1], min_width[0]:max_width[0]]
             cropped = (cropped.permute(2, 1, 0)*255).cpu().numpy().astype(np.uint8)
-            print('cropped shape and type', cropped.shape, type(cropped))
-            cv2.imwrite('cropped.jpg', cropped)
 
             cropped = ( cropped.transpose(2, 0, 1) / 255)
             cropped = torch.from_numpy(cropped).float().unsqueeze(1).cuda()
-            print('cropped shape and type', cropped.shape, type(cropped))
+
 
             pred1 = self.superpoint({'image': cropped})
             
@@ -174,39 +152,23 @@ class Matching(torch.nn.Module):
                 el = el.tolist()
                 pred['scores1'].extend(el)
 
-            # print(pred['descriptors1'])
-            # input()
             for descr in pred1['descriptors']:
                 if descr.shape != torch.Size([256, 1]) and descr.shape != torch.Size([256, 0]):
                     new_descr = descr.T.tolist()
-                    # print(np.array(new_descr).shape)
                     pred['descriptors1'].extend(new_descr)
-        # print(len(pred['descriptors1']))
-        # input()
+
         pred['keypoints1'] = torch.FloatTensor(pred['keypoints1']).cuda()
         pred['scores1'] = torch.FloatTensor(pred['scores1']).cuda()
         pred['descriptors1'] = torch.FloatTensor(pred['descriptors1']).T.cuda()
 
-        print('pred keypoints0', pred['keypoints0'].shape)
-        print('pred scores0', pred['scores0'].shape)
-        print('pred descriptors0', pred['descriptors0'].shape)
-        print('pred keypoints1', pred['keypoints1'].shape)
-        print('pred scores1', pred['scores1'].shape)
-        print('pred descriptors1', pred['descriptors1'].shape)
-        # input()
-
         # Batch all features
         # We should either have i) one image per batch, or
         # ii) the same number of local features for all images in the batch.
-
         data = {**data, **pred}
-        # print(data)
-        # input()
+
         for k in data:
             if isinstance(data[k], (list, tuple)):
                 data[k] = torch.tensor(data[k]) if 'scores' in k else torch.stack(data[k], dim=0)
-                # data[k] = torch.FloatTensor(data[k])
-        
 
         # Perform the matching
         pred = {**pred, **self.superglue(data)}

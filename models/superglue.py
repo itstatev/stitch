@@ -79,8 +79,6 @@ class KeypointEncoder(nn.Module):
 
     def forward(self, kpts, scores):
         inputs = [kpts.transpose(1, 2), scores.unsqueeze(1).unsqueeze(1).permute(1, 2, 0)]
-        # print('shape', kpts.transpose(1,2).shape, scores.unsqueeze(1).unsqueeze(1).permute(1, 2, 0).shape)
-        # input()
         return self.encoder(torch.cat(inputs, dim=1))
 
 
