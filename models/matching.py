@@ -69,34 +69,28 @@ class Matching(torch.nn.Module):
         pred['descriptors1'] =  []
 
         for a_layer in layers_of_first_img:
-            a_layer = np.array(a_layer, np.uint8)
+            width, height = a_layer.shape
+            mask = np.where(a_layer == 255)
+            coordinates = list(zip(mask[0], mask[1]))
+            top_left = min(coordinates, key=lambda c: abs(c[0]) + abs(c[1]))
+            bottom_right = max(coordinates, key=lambda c: abs(c[0]) + abs(c[1]))
 
-            # print('Along y-axis')
-            x, y = np.where(a_layer == 255)
-            sort = np.argsort(y)
-            y_min_x, y_min_y = x[sort[0]], y[sort[0]]
-            y_max_x, y_max_y = x[sort[-1]], y[sort[-1]]
+            top_left = (max(top_left[0] - 10, 0), max(top_left[1] - 10, 0))
+            bottom_right = (min(bottom_right[0] + 10, width - 1), min(bottom_right[1] + 10, height - 1))
 
-            # print('Along x-axis')
-            sort = np.argsort(x)
-            x_min_x, x_min_y = x[sort[0]], y[sort[0]]
-            x_max_x, x_max_y = x[sort[-1]], y[sort[-1]]
+            cropped = data['image0'].permute(0, 3, 2, 1).squeeze()[:, top_left[1]:bottom_right[1], top_left[0]:bottom_right[0]]
+            cropped = (cropped.permute(2, 1, 0)*255).cpu().numpy().astype(np.uint8)
 
-            min_width = (max([x_min_x - 10, 0]), x_min_y)
-            max_width = (min([x_max_x  + 10, 240]), x_max_y)
-            min_height = (min([y_min_x + 10, 360]), y_min_y)
-            max_height = (max([y_max_x - 10, 0]), y_max_y)
-
-            cropped = data['image0'].permute(0, 3, 2, 1).squeeze()[:, min_height[1]:max_height[1], min_width[0]:max_width[0]]
-            cropped = cropped.clone().unsqueeze(1).permute(0, 1, 3, 2)
-
+            cropped = (cropped.transpose(2, 0, 1) / 255)
+            cropped = torch.from_numpy(cropped).float().unsqueeze(1).cuda()
+            
             pred0 = self.superpoint({'image': cropped})
 
             for tensor in pred0['keypoints']:
                 for keypoint in tensor:
                     keypoint = keypoint.tolist()
-                    keypoint[0] = keypoint[0] + x_min_x
-                    keypoint[1] = keypoint[1] + y_max_y
+                    keypoint[0] = keypoint[0] + top_left[0]
+                    keypoint[1] = keypoint[1] + top_left[1]
                     pred['keypoints0'].append(keypoint)
 
             for el in pred0['scores']:
@@ -108,44 +102,35 @@ class Matching(torch.nn.Module):
                     new_descr = descr.T.tolist()
                     pred['descriptors0'].extend(new_descr) 
 
-
         pred['keypoints0'] = torch.FloatTensor(pred['keypoints0']).cuda()
         pred['scores0'] = torch.FloatTensor(pred['scores0']).cuda()
         pred['descriptors0'] = torch.FloatTensor(pred['descriptors0']).T.cuda()
 
         for b_layer in layers_of_second_img:
-            b_layer = np.array(b_layer, np.uint8)
+            width, height = b_layer.shape
+            mask = np.where(b_layer == 255)
+            coordinates = list(zip(mask[0], mask[1]))
+            top_left = min(coordinates, key=lambda c: abs(c[0]) + abs(c[1]))
+            bottom_right = max(coordinates, key=lambda c: abs(c[0]) + abs(c[1]))
 
-            # Along x-axis
-            x, y = np.where(b_layer == 255)
-            sort = np.argsort(y)
-            y_min_x, y_min_y = x[sort[0]], y[sort[0]]
-            y_max_x, y_max_y = x[sort[-1]], y[sort[-1]]
+            top_left = (max(top_left[0] - 10, 0), max(top_left[1] - 10, 0))
+            bottom_right = (min(bottom_right[0] + 10, width - 1), min(bottom_right[1] + 10, height - 1))
 
-            # Along y-axis
-            sort = np.argsort(x)
-            x_min_x, x_min_y = x[sort[0]], y[sort[0]]
-            x_max_x, x_max_y = x[sort[-1]], y[sort[-1]]
-
-            min_width = (max([x_min_x - 10, 0]), x_min_y)
-            max_width = (min([x_max_x  + 10, 240]), x_max_y)
-            min_height = (min([y_min_x + 10, 360]), y_min_y)
-            max_height = (max([y_max_x - 10, 0]), y_max_y)
-
-            cropped = data['image1'].permute(0, 3, 2, 1).squeeze()[:, min_height[1]:max_height[1], min_width[0]:max_width[0]]
+            print('croppings', top_left, bottom_right)
+            cropped = data['image1'].permute(0, 3, 2, 1).squeeze()[:, top_left[1]:bottom_right[1], top_left[0]:bottom_right[0]]
             cropped = (cropped.permute(2, 1, 0)*255).cpu().numpy().astype(np.uint8)
-
-            cropped = ( cropped.transpose(2, 0, 1) / 255)
+            print('cropped shape', cropped.shape)
+            cv2.imwrite('cropped.jpg', cropped)
+            cropped = (cropped.transpose(2, 0, 1) / 255)
             cropped = torch.from_numpy(cropped).float().unsqueeze(1).cuda()
-
-
-            pred1 = self.superpoint({'image': cropped})
             
+            pred1 = self.superpoint({'image': cropped})
+
             for tensor in pred1['keypoints']:
                 for keypoint in tensor:
                     keypoint = keypoint.tolist()
-                    keypoint[0] = keypoint[0] + x_min_x
-                    keypoint[1] = keypoint[1] + y_max_y
+                    keypoint[0] = keypoint[0] + top_left[0]
+                    keypoint[1] = keypoint[1] + top_left[1]
                     pred['keypoints1'].append(keypoint)
 
             for el in pred1['scores']:
