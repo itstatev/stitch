@@ -116,10 +116,8 @@ class Matching(torch.nn.Module):
             top_left = (max(top_left[0] - 10, 0), max(top_left[1] - 10, 0))
             bottom_right = (min(bottom_right[0] + 10, width - 1), min(bottom_right[1] + 10, height - 1))
 
-            print('croppings', top_left, bottom_right)
             cropped = data['image1'].permute(0, 3, 2, 1).squeeze()[:, top_left[1]:bottom_right[1], top_left[0]:bottom_right[0]]
             cropped = (cropped.permute(2, 1, 0)*255).cpu().numpy().astype(np.uint8)
-            print('cropped shape', cropped.shape)
             cv2.imwrite('cropped.jpg', cropped)
             cropped = (cropped.transpose(2, 0, 1) / 255)
             cropped = torch.from_numpy(cropped).float().unsqueeze(1).cuda()
@@ -150,7 +148,7 @@ class Matching(torch.nn.Module):
         # We should either have i) one image per batch, or
         # ii) the same number of local features for all images in the batch.
         data = {**data, **pred}
-
+        print('in matching second', data['image0'].shape)
         for k in data:
             if isinstance(data[k], (list, tuple)):
                 data[k] = torch.tensor(data[k]) if 'scores' in k else torch.stack(data[k], dim=0)

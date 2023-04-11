@@ -244,8 +244,6 @@ class SuperGlue(nn.Module):
         kpts1 = normalize_keypoints(kpts1, data['image1'].shape)
 
         # Keypoint MLP encoder.
-        # print(kpts0)
-        # input()
         desc0 = desc0 + self.kenc(kpts0, data['scores0'])
         desc1 = desc1 + self.kenc(kpts1, data['scores1'])
 

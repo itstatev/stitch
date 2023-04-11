@@ -16,17 +16,12 @@ from .models.utils import (compute_pose_error, compute_epipolar_error,
 
 
 # default input path: ='/home/tatev/Documents/change_detection/CD_via_segmentation/modules/stitch/pairs.txt'
-def match_pairs(pair, layers_of_first_img, layers_of_second_img, pairs='', resize=[360, 240], superglue='outdoor', max_keypoints=8, keypoint_threshold=0.000000001, nms_radius=4, sinkhorn_iterations=20, match_threshold=0.00000009, viz=False, eval=False, fast_viz=False, viz_extension=False, opencv_display=False, force_cpu=False):
-    # print('the pair', pair)
-    # cv2.imshow('img', pair[0])
-    # cv2.waitKey(0)
+def match_pairs(pair, layers_of_first_img, layers_of_second_img, pairs='', resize=[-1], superglue='outdoor', max_keypoints=8, keypoint_threshold=0.000000001, nms_radius=4, sinkhorn_iterations=20, match_threshold=0.00000009, viz=False, eval=False, fast_viz=False, viz_extension=False, opencv_display=False, force_cpu=False):
     torch.set_grad_enabled(False)
     assert not (opencv_display and not viz), 'Must use --viz with --opencv_display'
     assert not (opencv_display and not fast_viz), 'Cannot use --opencv_display without --fast_viz'
     assert not (fast_viz and not viz), 'Must use --viz with --fast_viz'
     assert not (fast_viz and viz_extension == 'pdf'), 'Cannot use pdf extension with --fast_viz'
-
-    print(keypoint_threshold)
 
     if len(resize) == 2 and resize[1] == -1:
         resize = resize[0:1]
@@ -40,7 +35,7 @@ def match_pairs(pair, layers_of_first_img, layers_of_second_img, pairs='', resiz
     else:
         raise ValueError('Cannot specify more than two integers for --resize')
 
-    print(pair[0].shape)
+
     # with open(input_pairs, 'r') as f:
     #     pairs = [l.split() for l in f.readlines()]
     if eval:
@@ -80,19 +75,6 @@ def match_pairs(pair, layers_of_first_img, layers_of_second_img, pairs='', resiz
     do_viz_eval = eval and viz
 
 
-    # Load the image pair.
-    # image0 = pair[0]
-    # image1 = pair[1]
-    # print(image0.shape)
-    # image0 = np.array(image0)
-    # image1 = np.array(image1)
-
-    # image0 = np.reshape(image0, (image0.shape[2], 1, image0.shape[0], image0.shape[1]))
-    # image1 = np.reshape(image1, (image1.shape[2], 1, image1.shape[0], image1.shape[1]))
-    # print('reshaped', image0.shape)
-    # inp0 = torch.from_numpy(image0).float()
-    # inp1 = torch.from_numpy(image1).float()
-
     image0, inp0, scale0 = read_image(pair[0], device, resize, 0, True)
     image1, inp1, scale1 = read_image(pair[1], device, resize, 0, True)
 
@@ -106,8 +88,6 @@ def match_pairs(pair, layers_of_first_img, layers_of_second_img, pairs='', resiz
         # Perform the matching.
         pred = matching({'image0': inp0, 'image1': inp1}, layers_of_first_img, layers_of_second_img)
         pred = {k: v.cpu().numpy() for k, v in pred.items()}
-        # print('pred', pred)
-        # input()
         kpts0, kpts1 = pred['keypoints0'], pred['keypoints1']
         matches, conf = pred['matches0'], pred['matching_scores0']
         keypoints0.append(kpts0)
