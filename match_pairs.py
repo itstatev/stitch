@@ -1,11 +1,5 @@
-from pathlib import Path
-import argparse
-import random
-import numpy as np
-import matplotlib.cm as cm
 import torch
-import matplotlib.pyplot as plt
-import cv2
+
 
 from .models.matching import Matching
 from .models.utils import (compute_pose_error, compute_epipolar_error,
@@ -15,7 +9,6 @@ from .models.utils import (compute_pose_error, compute_epipolar_error,
                           scale_intrinsics)
 
 
-# default input path: ='/home/tatev/Documents/change_detection/CD_via_segmentation/modules/stitch/pairs.txt'
 def match_pairs(pair, layers_of_first_img, layers_of_second_img, pairs='', resize=[-1], superglue='outdoor', max_keypoints=8, keypoint_threshold=0.000000001, nms_radius=4, sinkhorn_iterations=20, match_threshold=0.00000009, viz=False, eval=False, fast_viz=False, viz_extension=False, opencv_display=False, force_cpu=False):
     torch.set_grad_enabled(False)
     assert not (opencv_display and not viz), 'Must use --viz with --opencv_display'
@@ -34,10 +27,6 @@ def match_pairs(pair, layers_of_first_img, layers_of_second_img, pairs='', resiz
         print('Will not resize images')
     else:
         raise ValueError('Cannot specify more than two integers for --resize')
-
-
-    # with open(input_pairs, 'r') as f:
-    #     pairs = [l.split() for l in f.readlines()]
     if eval:
         if not all([len(p) == 38 for p in pairs]):
             raise ValueError(
@@ -75,8 +64,8 @@ def match_pairs(pair, layers_of_first_img, layers_of_second_img, pairs='', resiz
     do_viz_eval = eval and viz
 
 
-    image0, inp0, scale0 = read_image(pair[0], device, resize, 0, True)
-    image1, inp1, scale1 = read_image(pair[1], device, resize, 0, True)
+    _, inp0, _ = read_image(pair[0], device, resize, 0, True)
+    _, inp1, _ = read_image(pair[1], device, resize, 0, True)
 
     inp0 = torch.moveaxis(inp0[0], 3, 1)
     inp0 = torch.moveaxis(inp0, 0, 1)
